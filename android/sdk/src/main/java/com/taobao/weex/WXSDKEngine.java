@@ -121,6 +121,7 @@ import com.taobao.weex.adapter.IWXHttpAdapter;
 import com.taobao.weex.adapter.IWXImgLoaderAdapter;
 import com.taobao.weex.adapter.IWXUserTrackAdapter;
 import com.taobao.weex.appfram.clipboard.WXClipboardModule;
+import com.taobao.weex.appfram.frame.WXFrameModule;
 import com.taobao.weex.appfram.navigator.IActivityNavBarSetter;
 import com.taobao.weex.appfram.navigator.WXNavigatorModule;
 import com.taobao.weex.appfram.pickers.WXPickersModule;
@@ -342,6 +343,7 @@ public class WXSDKEngine {
       registerModule("clipboard", WXClipboardModule.class, true);
       registerModule("globalEvent",WXGlobalEventModule.class);
       registerModule("picker", WXPickersModule.class);
+      registerModule("frame", WXFrameModule.class);
 
       registerDomObject(WXBasicComponentType.INDICATOR, WXIndicator.IndicatorDomNode.class);
       registerDomObject(WXBasicComponentType.TEXT, WXTextDomObject.class);
