@@ -390,6 +390,7 @@ public class WXSDKManager {
   public void notifyTrimMemory() {
     mBridgeManager.notifyTrimMemory();
   }
+
   public @Nullable
   IWebSocketAdapter getIWXWebSocketAdapter() {
     if (mIWebSocketAdapterFactory != null) {
