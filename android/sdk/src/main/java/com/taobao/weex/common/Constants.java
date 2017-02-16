@@ -272,6 +272,7 @@ public class Constants {
     String BORDER_TOP_STYLE = "borderTopStyle";
 
     String POSITION = "position";
+    String INSERT_POSITION = "insertPosition";
 
     String TEXT_DECORATION = "textDecoration";
     String TEXT_ALIGN = "textAlign";
