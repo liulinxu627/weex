@@ -18,8 +18,14 @@ describe('list scroll event', function () {
     return driver
       .initDriver()
       .get('wxpage://' + util.getDeviceHost() +'/list-scroll.js')
-      .waitForElementByXPath('//div/text[1]',util.getGETActionWaitTimeMills(),100)
+      .waitForElementByXPath('//div/text[1]',util.getGETActionWaitTimeMills(),1000)
   });
+
+  after(function () {
+      return driver
+      .sleep(1000)
+      .quit()
+  })
 
 
   it('#1 Drag list', () => {
@@ -60,8 +66,14 @@ describe('scroller scroll event', function () {
     return driver
       .initDriver()
       .get('wxpage://' + util.getDeviceHost() +'/scroller-scroll.js')
-      .waitForElementByXPath('//div/text[1]',util.getGETActionWaitTimeMills(),100)
+      .waitForElementByXPath('//div/text[1]',util.getGETActionWaitTimeMills(),1000)
   });
+
+  after(function () {
+      return driver
+      .sleep(1000)
+      .quit()
+  })
 
 
   it('#1 Drag scroller', () => {
