@@ -231,6 +231,7 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.common.Constants;
 import com.taobao.weex.common.OnWXScrollListener;
 import com.taobao.weex.common.WXRuntimeException;
+import com.taobao.weex.dom.ImmutableDomObject;
 import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.component.AppearanceHelper;
 import com.taobao.weex.ui.component.Scrollable;
@@ -265,7 +266,7 @@ import java.util.regex.Pattern;
  */
 
 public abstract class BasicListComponent<T extends ViewGroup & ListComponentView> extends WXVContainer<T> implements
-    IRecyclerAdapterListener<ListBaseViewHolder>, IOnLoadMoreListener, Scrollable {
+                                                                                                          IRecyclerAdapterListener<ListBaseViewHolder>, IOnLoadMoreListener, Scrollable {
   public static final String TRANSFORM = "transform";
   public static final String LOADMOREOFFSET = "loadmoreoffset";
   private String TAG = "BasicListComponent";
@@ -293,6 +294,8 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
    **/
   private Map<String, HashMap<String, WXComponent>> mStickyMap = new HashMap<>();
   private WXStickyHelper stickyHelper;
+
+  private RecyclerView.ItemAnimator mItemAnimator=null;
 
 
   public BasicListComponent(WXSDKInstance instance, WXDomObject node, WXVContainer parent) {
@@ -751,12 +754,61 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
 
     int adapterPosition = index == -1 ? mChildren.size() - 1 : index;
     T view = getHostView();
+    boolean isCellInsertFixed=isCellInsertFixed(child);
     if (view != null) {
-      view.getRecyclerViewBaseAdapter().notifyItemInserted(adapterPosition);
+      if(isCellInsertFixed){
+        keepFixedWhenInsertCell();
+      }else{
+        resetItemAnimator();
+        view.getRecyclerViewBaseAdapter().notifyItemInserted(adapterPosition);
+      }
     }
     relocateAppearanceHelper();
   }
 
+  /**
+   * resetItemAnimator
+   */
+  private void resetItemAnimator() {
+    if(mItemAnimator!=null){
+      WXRecyclerView recyclerView=getHostView().getInnerView();
+      recyclerView.setItemAnimator(mItemAnimator);
+    }
+  }
+
+  /**
+   * keepFixedWhenInsertCell
+   */
+  private void keepFixedWhenInsertCell() {
+    WXRecyclerView recyclerView = getHostView().getInnerView();
+    if (recyclerView != null && recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+      LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+      //TODO There will be risks if changing elsewhere
+      if(mItemAnimator==null){
+        mItemAnimator=recyclerView.getItemAnimator();
+        recyclerView.setItemAnimator(null);
+      }
+      recyclerView.scrollToPosition(layoutManager.findLastVisibleItemPosition()+1);
+      // If you use notifyItemInserted, the screen will blink
+      getHostView().getRecyclerViewBaseAdapter().notifyDataSetChanged();
+    }
+  }
+
+  /**
+   * Determine if the component needs to be fixed at the time of insertion
+   * @param child Need to insert the component
+   * @return fixed=true
+   */
+  private boolean isCellInsertFixed(WXComponent child) {
+    ImmutableDomObject domObject=child.getDomObject();
+    if(domObject!=null && domObject.getAttrs()!=null && domObject.getAttrs().size()>0){
+      Object attr=domObject.getAttrs().get(Constants.Name.INSERT_POSITION);
+      if(Constants.Value.FIXED.equals(attr)){
+        return true;
+      }
+    }
+    return false;
+  }
 
   private void relocateAppearanceHelper() {
     Iterator<Map.Entry<String, AppearanceHelper>> iterator = mAppearComponents.entrySet().iterator();
@@ -1080,7 +1132,7 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     //notify appear state
     Iterator<AppearanceHelper> it = mAppearComponents.values().iterator();
     String direction = directionY > 0 ? Constants.Value.DIRECTION_UP :
-        directionY < 0 ? Constants.Value.DIRECTION_DOWN : null;
+                       directionY < 0 ? Constants.Value.DIRECTION_DOWN : null;
     if (getOrientation() == Constants.Orientation.HORIZONTAL && directionX != 0) {
       direction = directionX > 0 ? Constants.Value.DIRECTION_LEFT : Constants.Value.DIRECTION_RIGHT;
     }
