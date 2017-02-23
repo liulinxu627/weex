@@ -1,11 +1,11 @@
-import { base, event, scrollable } from '../../../mixins'
+import { base, scrollable } from '../../../mixins'
 import { validateStyles } from '../../../validator'
-import { debounce, throttle, bind, extend } from '../../../utils'
+import { extend } from '../../../utils'
 import * as shared from '../shared'
 import listMixin from './listMixin'
 
 export default {
-  mixins: [base, event, scrollable, listMixin],
+  mixins: [base, scrollable, listMixin],
   props: {
     loadmoreoffset: {
       type: [String, Number],
@@ -61,9 +61,9 @@ export default {
       attrs: { 'weex-type': 'list' },
       staticClass: this.wrapperClass,
       on: extend(this.createEventMap(), {
-        scroll: debounce(bind(this.handleScroll, this), 30),
+        scroll: this.handleListScroll,
         touchstart: this.handleTouchStart,
-        touchmove: throttle(bind(this.handleTouchMove, this), 25),
+        touchmove: this.handleTouchMove,
         touchend: this.handleTouchEnd
       })
     }, this.createChildren(createElement))

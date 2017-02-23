@@ -192,26 +192,27 @@ figure, img, .weex-image, .weex-img {
 
 body > .weex-list,
 body > .weex-scroller {
-  min-height: 100%;
+  max-height: 100%;
 }
 
 .weex-list-wrapper,
 .weex-scroller-wrapper {
   display: block;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: scroll;
+}
+
+.weex-list-wrapper {
+  overflow-y: scroll !important;
 }
 
 .weex-list-inner,
 .weex-scroller-inner {
+  -webkit-overflow-scrolling:touch;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   width: 100%;
-  min-height: 100%;
-  overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
@@ -223,18 +224,32 @@ body > .weex-scroller {
           justify-content: flex-start;
 }
 
+.weex-scroller-inner::-webkit-scrollbar {
+    width: 0;
+}
+
+.weex-scroller-wrapper.weex-scroller-vertical {
+  overflow-y: scroll;
+}
+
 .weex-scroller-wrapper.weex-scroller-horizontal {
   overflow-x: scroll;
-  overflow-y: hidden;
 }
 
 .weex-scroller-horizontal .weex-scroller-inner {
-  display: block;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
   width: auto;
   height: 100%;
 }
 .weex-scroller-horizontal .weex-scroller-inner > * {
   float: left;
+}
+
+.sticky {
+  position: fixed;
+  z-index: 9999;
 }
 
 .weex-cell {
@@ -315,10 +330,8 @@ body > .weex-scroller {
 
 .weex-indicator {
   position: absolute;
-  right: 0.4rem;
-  bottom: 0.1333rem;
   margin: 0;
-  padding: 0.1333rem 0.2667rem;
+  padding: 0;
 }
 
 .weex-indicator-item {

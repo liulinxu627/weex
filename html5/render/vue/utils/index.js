@@ -1,6 +1,8 @@
 export * from './func'
 export * from './event'
 export * from './component'
+export * from './lazyload'
+export * from './style'
 
 /**
  * Create a cached version of a pure function.
@@ -44,16 +46,6 @@ export function camelToKebab (name) {
   return name.replace(/([A-Z])/g, function (g, g1) {
     return `-${g1.toLowerCase()}`
   })
-}
-
-/**
- * Mix properties into target object.
- */
-export function extend (to, _from) {
-  for (const key in _from) {
-    to[key] = _from[key]
-  }
-  return to
 }
 
 export function appendStyle (css, styleId, replace) {
