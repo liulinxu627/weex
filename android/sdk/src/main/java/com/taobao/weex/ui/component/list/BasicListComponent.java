@@ -773,6 +773,11 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     relocateAppearanceHelper();
   }
 
+  /**
+   * To determine whether an animation is needed
+   * @param child
+   * @return
+   */
   private boolean isAddAnimation(WXComponent child) {
     ImmutableDomObject domObject = child.getDomObject();
     if (domObject != null) {
@@ -858,6 +863,11 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     super.remove(child, destroy);
   }
 
+  /**
+   * To determine whether an animation is needed
+   * @param child
+   * @return
+   */
   private boolean isRemoveAnimation(WXComponent child) {
     ImmutableDomObject domObject = child.getDomObject();
     if (domObject != null) {
