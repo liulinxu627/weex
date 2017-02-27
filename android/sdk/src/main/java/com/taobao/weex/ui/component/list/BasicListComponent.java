@@ -849,10 +849,10 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
       return;
     }
 
-    boolean isRemoveAnimation=isRemoveAnimation(child);
-    if(isRemoveAnimation){
+    boolean isRemoveAnimation = isRemoveAnimation(child);
+    if (isRemoveAnimation) {
       view.getInnerView().setItemAnimator(mItemAnimator);
-    }else{
+    } else {
       view.getInnerView().setItemAnimator(null);
     }
 
