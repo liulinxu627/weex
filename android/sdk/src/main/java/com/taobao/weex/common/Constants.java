@@ -273,6 +273,8 @@ public class Constants {
 
     String POSITION = "position";
 
+    String KEEP_SCROLL_POSITION = "keepScrollPosition";
+
     String TEXT_DECORATION = "textDecoration";
     String TEXT_ALIGN = "textAlign";
     String FONT_WEIGHT = "fontWeight";

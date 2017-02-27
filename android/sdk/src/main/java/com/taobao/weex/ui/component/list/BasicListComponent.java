@@ -231,6 +231,7 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.common.Constants;
 import com.taobao.weex.common.OnWXScrollListener;
 import com.taobao.weex.common.WXRuntimeException;
+import com.taobao.weex.dom.ImmutableDomObject;
 import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.component.AppearanceHelper;
 import com.taobao.weex.ui.component.Scrollable;
@@ -752,9 +753,30 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     int adapterPosition = index == -1 ? mChildren.size() - 1 : index;
     T view = getHostView();
     if (view != null) {
-      view.getRecyclerViewBaseAdapter().notifyItemInserted(adapterPosition);
+      boolean isKeepScrollPosition=isKeepScrollPosition(child);
+      if(isKeepScrollPosition){
+        view.getRecyclerViewBaseAdapter().notifyItemInserted(adapterPosition);
+      }else{
+        view.getRecyclerViewBaseAdapter().notifyItemChanged(adapterPosition);
+      }
     }
     relocateAppearanceHelper();
+  }
+
+  /**
+   * Determine if the component needs to be fixed at the time of insertion
+   * @param child Need to insert the component
+   * @return fixed=true
+   */
+  private boolean isKeepScrollPosition(WXComponent child) {
+    ImmutableDomObject domObject=child.getDomObject();
+    if(domObject!=null && domObject.getAttrs()!=null && domObject.getAttrs().size()>0){
+      Object attr=domObject.getAttrs().get(Constants.Name.KEEP_SCROLL_POSITION);
+      if("true".equals(attr)){
+        return true;
+      }
+    }
+    return false;
   }
 
 
