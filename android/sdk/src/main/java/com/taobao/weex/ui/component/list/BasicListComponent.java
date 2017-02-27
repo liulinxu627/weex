@@ -791,9 +791,9 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
    */
   private boolean isKeepScrollPosition(WXComponent child) {
     ImmutableDomObject domObject=child.getDomObject();
-    if(domObject!=null && domObject.getAttrs()!=null && domObject.getAttrs().size()>0){
+    if(domObject!=null){
       Object attr=domObject.getAttrs().get(Constants.Name.KEEP_SCROLL_POSITION);
-      if("true".equals(attr)){
+      if(WXUtils.getBoolean(attr,false)){
         return true;
       }
     }
