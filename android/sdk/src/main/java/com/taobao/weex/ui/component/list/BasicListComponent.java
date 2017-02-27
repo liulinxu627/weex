@@ -289,6 +289,8 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
   private int mOffsetAccuracy = 10;
   private Point mLastReport = new Point(-1, -1);
 
+  private RecyclerView.ItemAnimator mItemAnimator;
+
   /**
    * Map for storing component that is sticky.
    **/
@@ -407,6 +409,8 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     if (transforms != null) {
       bounceRecyclerView.getInnerView().addItemDecoration(parseTransforms(transforms));
     }
+
+    mItemAnimator=bounceRecyclerView.getInnerView().getItemAnimator();
 
     RecyclerViewBaseAdapter recyclerViewBaseAdapter = new RecyclerViewBaseAdapter<>(this);
     recyclerViewBaseAdapter.setHasStableIds(true);
@@ -753,6 +757,12 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     int adapterPosition = index == -1 ? mChildren.size() - 1 : index;
     T view = getHostView();
     if (view != null) {
+      boolean isAddAnimation=isAddAnimation(child);
+      if(isAddAnimation){
+        view.getInnerView().setItemAnimator(mItemAnimator);
+      }else{
+        view.getInnerView().setItemAnimator(null);
+      }
       boolean isKeepScrollPosition=isKeepScrollPosition(child);
       if(isKeepScrollPosition){
         view.getRecyclerViewBaseAdapter().notifyItemInserted(adapterPosition);
@@ -761,6 +771,17 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
       }
     }
     relocateAppearanceHelper();
+  }
+
+  private boolean isAddAnimation(WXComponent child) {
+    ImmutableDomObject domObject = child.getDomObject();
+    if (domObject != null && domObject.getAttrs() != null && domObject.getAttrs().size() > 0) {
+      Object attr = domObject.getAttrs().get(Constants.Name.INSERT_CELL_ANIMATION);
+      if (Constants.Value.DEFAULT.equals(attr)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -822,11 +843,30 @@ public abstract class BasicListComponent<T extends ViewGroup & ListComponentView
     if (view == null) {
       return;
     }
+
+    boolean isRemoveAnimation=isRemoveAnimation(child);
+    if(isRemoveAnimation){
+      view.getInnerView().setItemAnimator(mItemAnimator);
+    }else{
+      view.getInnerView().setItemAnimator(null);
+    }
+
     view.getRecyclerViewBaseAdapter().notifyItemRemoved(index);
     if (WXEnvironment.isApkDebugable()) {
       WXLogUtils.d(TAG, "removeChild child at " + index);
     }
     super.remove(child, destroy);
+  }
+
+  private boolean isRemoveAnimation(WXComponent child) {
+    ImmutableDomObject domObject=child.getDomObject();
+    if(domObject!=null && domObject.getAttrs()!=null && domObject.getAttrs().size()>0){
+      Object attr=domObject.getAttrs().get(Constants.Name.DELETE_CELL_ANIMATION);
+      if(Constants.Value.DEFAULT.equals(attr)){
+        return true;
+      }
+    }
+    return false;
   }
 
 

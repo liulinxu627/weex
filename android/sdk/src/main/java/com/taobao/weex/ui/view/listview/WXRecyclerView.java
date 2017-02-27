@@ -249,9 +249,6 @@ public class WXRecyclerView extends RecyclerView implements WXGestureObservable 
    * @param orientation should be {@link OrientationHelper#HORIZONTAL} or {@link OrientationHelper#VERTICAL}
    */
   public void initView(Context context, int type,int orientation) {
-    //remove item default animation
-    setItemAnimator(null);
-
     if (type == TYPE_GRID_LAYOUT) {
       setLayoutManager(new GridLayoutManager(context, 2,orientation,false));
     } else if (type == TYPE_STAGGERED_GRID_LAYOUT) {

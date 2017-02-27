@@ -349,6 +349,9 @@ public class Constants {
     String RETURN_KEY_TYPE = "returnKeyType";
     String OFFSET = "offset";
     String ANIMATED = "animated";
+
+    String INSERT_CELL_ANIMATION = "insertAnimation";
+    String DELETE_CELL_ANIMATION = "deleteAnimation";
   }
 
   public interface Value {
@@ -383,6 +386,9 @@ public class Constants {
     String DIRECTION_RIGHT = "right";
     String DIRECTION_UP = "up";
     String DIRECTION_DOWN = "down";
+
+    String NONE = "none";
+    String DEFAULT = "default";
   }
 
   public interface Event {
