@@ -202,142 +202,116 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alibaba.weex;
+package com.alibaba.weex.extend.component;
 
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
+import android.content.Context;
+import android.support.annotation.NonNull;
 
-import com.alibaba.weex.commons.adapter.DefaultWebSocketAdapterFactory;
-import com.alibaba.weex.commons.adapter.ImageAdapter;
-import com.alibaba.weex.commons.adapter.JSExceptionAdapter;
-import com.alibaba.weex.extend.PlayDebugAdapter;
-import com.alibaba.weex.extend.component.LottieDomObject;
-import com.alibaba.weex.extend.component.RichText;
-import com.alibaba.weex.extend.component.WXComponentSyncTest;
-import com.alibaba.weex.extend.component.WXLottie;
-import com.alibaba.weex.extend.module.GeolocationModule;
-import com.alibaba.weex.extend.module.MyModule;
-import com.alibaba.weex.extend.module.RenderModule;
-import com.alibaba.weex.extend.module.SyncTestModule;
-import com.alibaba.weex.extend.module.WXEventModule;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.taobao.weex.InitConfig;
-import com.taobao.weex.WXEnvironment;
+import com.airbnb.lottie.Cancellable;
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieComposition;
+import com.airbnb.lottie.OnCompositionLoadedListener;
 import com.taobao.weex.WXSDKEngine;
-import com.taobao.weex.WXSDKManager;
-import com.taobao.weex.common.WXException;
+import com.taobao.weex.WXSDKInstance;
+import com.taobao.weex.adapter.IWXHttpAdapter;
+import com.taobao.weex.common.WXRequest;
+import com.taobao.weex.common.WXResponse;
+import com.taobao.weex.dom.WXDomObject;
+import com.taobao.weex.ui.component.WXComponent;
+import com.taobao.weex.ui.component.WXComponentProp;
+import com.taobao.weex.ui.component.WXVContainer;
 
-public class WXApplication extends Application {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by lixinke on 2017/2/28.
+ */
+
+public class WXLottie extends WXComponent<LottieAnimationView> implements IWXHttpAdapter.OnHttpListener {
+
+  private Cancellable mCancellable;
+  private IWXHttpAdapter mIWXHttpAdapter;
+  private boolean mLoop = true;
+
+  public WXLottie(WXSDKInstance instance, WXDomObject dom, WXVContainer parent) {
+    super(instance, dom, parent);
+    mIWXHttpAdapter = WXSDKEngine.getIWXHttpAdapter();
+  }
 
   @Override
-  public void onCreate() {
-    super.onCreate();
+  protected LottieAnimationView initComponentHostView(@NonNull Context context) {
+    LottieAnimationView lottieAnimationView = new LottieAnimationView(context);
+    lottieAnimationView.loop(true);
+    return lottieAnimationView;
+  }
 
-    /**
-     * Set up for fresco usage.
-     * Set<RequestListener> requestListeners = new HashSet<>();
-     * requestListeners.add(new RequestLoggingListener());
-     * ImagePipelineConfig config = ImagePipelineConfig.newBuilder(this)
-     *     .setRequestListeners(requestListeners)
-     *     .build();
-     * Fresco.initialize(this,config);
-     **/
-//    initDebugEnvironment(true, false, "DEBUG_SERVER_HOST");
-    WXSDKEngine.addCustomOptions("appName", "WXSample");
-    WXSDKEngine.addCustomOptions("appGroup", "WXApp");
-    WXSDKEngine.initialize(this,
-                           new InitConfig.Builder()
-                               //.setImgAdapter(new FrescoImageAdapter())// use fresco adapter
-                               .setImgAdapter(new ImageAdapter())
-                               .setDebugAdapter(new PlayDebugAdapter())
-                               .setWebSocketAdapterFactory(new DefaultWebSocketAdapterFactory())
-                               .setJSExceptionAdapter(new JSExceptionAdapter())
-                               .build()
-                          );
+  @WXComponentProp(name = "src")
+  public void setSrc(String jsonUrl) {
+    WXRequest request = new WXRequest();
+    request.url = jsonUrl;
+    mIWXHttpAdapter.sendRequest(request, this);
+  }
 
-    try {
-      Fresco.initialize(this);
-      WXSDKEngine.registerComponent("synccomponent", WXComponentSyncTest.class);
+  @WXComponentProp(name = "loop")
+  public void setLoop(boolean loop) {
+    mLoop = loop;
+  }
 
-      WXSDKEngine.registerComponent("richtext", RichText.class);
-      WXSDKEngine.registerComponent("lottie", WXLottie.class);
-      WXSDKEngine.registerDomObject("lottie", LottieDomObject.class);
-      WXSDKEngine.registerModule("render", RenderModule.class);
-      WXSDKEngine.registerModule("event", WXEventModule.class);
-      WXSDKEngine.registerModule("syncTest", SyncTestModule.class);
-
-      WXSDKEngine.registerModule("myModule", MyModule.class);
-      WXSDKEngine.registerModule("geolocation", GeolocationModule.class);
-      /**
-       * override default image tag
-       * WXSDKEngine.registerComponent("image", FrescoImageComponent.class);
-       */
-
-
-    } catch (WXException e) {
-      e.printStackTrace();
-    }
-
-    registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+  @Override
+  public void onHttpStart() {
+    mCancellable = LottieComposition.Factory.fromAssetFileName(getContext(), "preloader.json", new OnCompositionLoadedListener() {
       @Override
-      public void onActivityCreated(Activity activity, Bundle bundle) {
-
-      }
-
-      @Override
-      public void onActivityStarted(Activity activity) {
-
-      }
-
-      @Override
-      public void onActivityResumed(Activity activity) {
-
-      }
-
-      @Override
-      public void onActivityPaused(Activity activity) {
-
-      }
-
-      @Override
-      public void onActivityStopped(Activity activity) {
-
-      }
-
-      @Override
-      public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
-      }
-
-      @Override
-      public void onActivityDestroyed(Activity activity) {
-        // The demo code of calling 'notifyTrimMemory()'
-        if (false) {
-          // We assume that the application is on an idle time.
-          WXSDKManager.getInstance().notifyTrimMemory();
-        }
+      public void onCompositionLoaded(LottieComposition composition) {
+        getHostView().setComposition(composition);
+        getHostView().playAnimation();
       }
     });
+  }
+
+  @Override
+  public void onHeadersReceived(int statusCode, Map<String, List<String>> headers) {
 
   }
 
-  /**
-   *@param connectable debug server is connectable or not.
-   *               if true, sdk will try to connect remote debug server when init WXBridge.
-   *
-   * @param debuggable enable remote debugger. valid only if host not to be "DEBUG_SERVER_HOST".
-   *               true, you can launch a remote debugger and inspector both.
-   *               false, you can  just launch a inspector.
-   * @param host the debug server host, must not be "DEBUG_SERVER_HOST", a ip address or domain will be OK.
-   *             for example "127.0.0.1".
-   */
-  private void initDebugEnvironment(boolean connectable, boolean debuggable, String host) {
-    if (!"DEBUG_SERVER_HOST".equals(host)) {
-      WXEnvironment.sDebugServerConnectable = connectable;
-      WXEnvironment.sRemoteDebugMode = debuggable;
-      WXEnvironment.sRemoteDebugProxyUrl = "ws://" + host + ":8088/debugProxy/native";
+  @Override
+  public void onHttpUploadProgress(int uploadProgress) {
+
+  }
+
+  @Override
+  public void onHttpResponseProgress(int loadedLength) {
+
+  }
+
+  @Override
+  public void onHttpFinish(WXResponse response) {
+    if ("200".equals(response.statusCode) && response.originalData != null) {
+      try {
+        String jsonStr = new String(response.originalData);
+        JSONObject jsonObject = new JSONObject(jsonStr);
+        mCancellable = LottieComposition.Factory.fromJson(getContext().getResources(),
+                                                          jsonObject, new OnCompositionLoadedListener() {
+              @Override
+              public void onCompositionLoaded(LottieComposition composition) {
+                getHostView().setComposition(composition);
+                getHostView().loop(mLoop);
+                getHostView().playAnimation();
+              }
+            });
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
     }
   }
 
+  @Override
+  public void destroy() {
+    super.destroy();
+    getHostView().pauseAnimation();
+    mCancellable.cancel();
+  }
 }
