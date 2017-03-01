@@ -90,7 +90,7 @@ dependencies {
     //Weex-Analyzer provides several convenient tools such as Memory Monitor
     // to optimize your application. It's not available by default,you can
     // set WXAnalyzerDelegate#DEBUG==true to enable it
-    debugCompile 'com.taobao.android:weex_analyzer:0.1.0.5'
+//    debugCompile 'com.taobao.android:weex_analyzer:0.1.0.5'
 
     compile project(':commons')
     compile 'com.taobao.android:dexposed:0.1.8'
