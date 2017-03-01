@@ -663,8 +663,8 @@ public final class WXDomModule extends WXModule {
         Map<String, Float> sizes = new HashMap<>();
         int[] location = new int[2];
         mWXSDKInstance.getContainerView().getLocationOnScreen(location);
-        sizes.put("left", Float.valueOf(0));
-        sizes.put("top", Float.valueOf(0));
+        sizes.put("left", 0f);
+        sizes.put("top", 0f);
         sizes.put("right", getWebPxValue(mWXSDKInstance.getContainerView().getWidth()));
         sizes.put("bottom", getWebPxValue(mWXSDKInstance.getContainerView().getHeight()));
         sizes.put("width", getWebPxValue(mWXSDKInstance.getContainerView().getWidth()));
