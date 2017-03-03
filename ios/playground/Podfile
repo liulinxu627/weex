@@ -13,7 +13,3 @@ end
 target 'WeexDemo' do
     common
 end
-
-target 'WeexUITestDemo' do
-    common
-end
