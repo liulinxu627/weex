@@ -317,7 +317,13 @@ public final class WXDomManager {
    * @param element the jsonObject according to which to create command object.
    */
   void createBody(String instanceId, JSONObject element) {
-    throwIfNotDomThread();
+    createBody(instanceId, element, true);
+  }
+
+  public void createBody(String instanceId, JSONObject element, boolean needDomThread) {
+    if (needDomThread) {
+      throwIfNotDomThread();
+    }
     WXDomStatement statement = new WXDomStatement(instanceId, mWXRenderManager);
     mDomRegistries.put(instanceId, statement);
     statement.createBody(element);
@@ -338,6 +344,13 @@ public final class WXDomManager {
     }
   }
 
+  public void syncBatch () {
+    Iterator<Entry<String, WXDomStatement>> iterator = mDomRegistries.entrySet().iterator();
+    while (iterator.hasNext()) {
+      iterator.next().getValue().forceUpdateBatch();
+    }
+  }
+
   /**
    * Invoke {@link WXDomStatement} for adding a dom node to its parent in a specific location.
    *
@@ -347,7 +360,13 @@ public final class WXDomManager {
    * @param index the location of which the dom is added.
    */
   void addDom(String instanceId, String parentRef, JSONObject element, int index) {
-    throwIfNotDomThread();
+    addDom(instanceId, parentRef, element, true, index);
+  }
+
+  public void addDom(String instanceId, String parentRef, JSONObject element, boolean needDomThread, int index) {
+    if (needDomThread) {
+      throwIfNotDomThread();
+    }
     WXDomStatement statement = mDomRegistries.get(instanceId);
     if (statement == null) {
       return;
@@ -414,7 +433,13 @@ public final class WXDomManager {
    *             merged into attributes
    */
   void updateAttrs(String instanceId, String ref, JSONObject attr) {
-    throwIfNotDomThread();
+    updateAttrs(instanceId, ref, attr, true);
+  }
+
+  public void updateAttrs(String instanceId, String ref, JSONObject attr, boolean needDomThread) {
+    if (needDomThread) {
+      throwIfNotDomThread();
+    }
     WXDomStatement statement = mDomRegistries.get(instanceId);
     if (statement == null) {
       return;
@@ -497,7 +522,13 @@ public final class WXDomManager {
    *                                                                    notify.
    */
   void createFinish(String instanceId) {
-    throwIfNotDomThread();
+    createFinish(instanceId, true);
+  }
+
+  public void createFinish(String instanceId, boolean needDomThread) {
+    if (needDomThread) {
+      throwIfNotDomThread();
+    }
     WXDomStatement statement = mDomRegistries.get(instanceId);
     if (statement == null) {
       return;
@@ -505,11 +536,11 @@ public final class WXDomManager {
     statement.createFinish();
   }
 
-  /**
-   * Notify the refreshing has finished.
-   * @param instanceId {@link com.taobao.weex.WXSDKInstance#mInstanceId} for the instance to
-   *                                                                    notify.
-   */
+    /**
+     * Notify the refreshing has finished.
+     * @param instanceId {@link com.taobao.weex.WXSDKInstance#mInstanceId} for the instance to
+     *                                                                    notify.
+     */
   void refreshFinish(String instanceId) {
     throwIfNotDomThread();
     WXDomStatement statement = mDomRegistries.get(instanceId);

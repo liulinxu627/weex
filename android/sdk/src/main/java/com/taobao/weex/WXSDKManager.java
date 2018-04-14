@@ -305,6 +305,10 @@ public class WXSDKManager {
     mBridgeManager.createInstance(instance.getInstanceId(), code, options, jsonInitData);
   }
 
+  public void createInstance (WXSDKInstance instance) {
+    mWXRenderManager.registerInstance(instance);
+  }
+
   void refreshInstance(String instanceId, WXRefreshData jsonData) {
     mBridgeManager.refreshInstance(instanceId, jsonData);
   }

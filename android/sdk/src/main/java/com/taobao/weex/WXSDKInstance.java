@@ -209,6 +209,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -294,6 +295,8 @@ public class WXSDKInstance implements IWXActivityStateListener,DomContext, View.
   private boolean isCommit=false;
   private WXGlobalEventReceiver mGlobalEventReceiver=null;
   private boolean trackComponent;
+  private volatile boolean isSyncRenderMode;
+
   /*
    *  store custom ViewPort Width
    */
@@ -754,6 +757,14 @@ public class WXSDKInstance implements IWXActivityStateListener,DomContext, View.
     }
   }
 
+  public boolean isSyncRenderMode() {
+    return this.isSyncRenderMode;
+  }
+
+  public void setSyncRenderMode (boolean isSyncRenderMode) {
+    this.isSyncRenderMode = isSyncRenderMode;
+  }
+
   /********************************
    * begin register listener
    ********************************************************/
@@ -969,22 +980,41 @@ public class WXSDKInstance implements IWXActivityStateListener,DomContext, View.
 
   public void onCreateFinish() {
     if (mContext != null) {
-      runOnUiThread(new Runnable() {
+      if (Looper.myLooper() == Looper.getMainLooper()) {
+        new Runnable() {
 
-        @Override
-        public void run() {
-          if ( mContext != null) {
-            onViewAppear();
-            View wxView= mRenderContainer;
-            if(WXEnvironment.isApkDebugable() && WXSDKManager.getInstance().getIWXDebugAdapter()!=null){
-              wxView = WXSDKManager.getInstance().getIWXDebugAdapter().wrapContainer(WXSDKInstance.this,wxView);
-            }
-            if(mRenderListener != null) {
-              mRenderListener.onViewCreated(WXSDKInstance.this, wxView);
+          @Override
+          public void run() {
+            if (mContext != null) {
+              onViewAppear();
+              View wxView = mRenderContainer;
+              if (WXEnvironment.isApkDebugable() && WXSDKManager.getInstance().getIWXDebugAdapter() != null) {
+                wxView = WXSDKManager.getInstance().getIWXDebugAdapter().wrapContainer(WXSDKInstance.this, wxView);
+              }
+              if (mRenderListener != null) {
+                mRenderListener.onViewCreated(WXSDKInstance.this, wxView);
+              }
             }
           }
-        }
-      });
+        }.run();
+      } else {
+        runOnUiThread(new Runnable() {
+
+          @Override
+          public void run() {
+            if (mContext != null) {
+              onViewAppear();
+              View wxView = mRenderContainer;
+              if (WXEnvironment.isApkDebugable() && WXSDKManager.getInstance().getIWXDebugAdapter() != null) {
+                wxView = WXSDKManager.getInstance().getIWXDebugAdapter().wrapContainer(WXSDKInstance.this, wxView);
+              }
+              if (mRenderListener != null) {
+                mRenderListener.onViewCreated(WXSDKInstance.this, wxView);
+              }
+            }
+          }
+        });
+      }
     }
   }
 

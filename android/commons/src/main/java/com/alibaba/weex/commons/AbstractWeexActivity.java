@@ -230,7 +230,7 @@ public abstract class AbstractWeexActivity extends AppCompatActivity implements 
   private static final String TAG = "AbstractWeexActivity";
 
   private ViewGroup mContainer;
-  private WXSDKInstance mInstance;
+  protected WXSDKInstance mInstance;
 
   protected WXAnalyzerDelegate mWxAnalyzerDelegate;
 

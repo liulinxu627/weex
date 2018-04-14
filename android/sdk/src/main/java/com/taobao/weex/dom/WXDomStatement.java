@@ -344,6 +344,11 @@ class WXDomStatement {
     layout(rootDom);
   }
 
+  void forceUpdateBatch () {
+    mDirty = true;
+    batch();
+  }
+
   void layout(WXDomObject rootDom) {
     if (rootDom == null) {
       return;
@@ -394,10 +399,15 @@ class WXDomStatement {
       instance.updateDomObjTime(System.currentTimeMillis() - start);
     }
     parseAnimation();
+    boolean isSyncRenderMode = instance != null && instance.isSyncRenderMode();
 
     int count = mNormalTasks.size();
     for (int i = 0; i < count && !mDestroy; ++i) {
-      mWXRenderManager.runOnThread(mInstanceId, mNormalTasks.get(i));
+      if (isSyncRenderMode) {
+        mWXRenderManager.syncRunOnThread(mInstanceId, mNormalTasks.get(i));
+      } else {
+        mWXRenderManager.runOnThread(mInstanceId, mNormalTasks.get(i));
+      }
     }
     mNormalTasks.clear();
     mAddDom.clear();

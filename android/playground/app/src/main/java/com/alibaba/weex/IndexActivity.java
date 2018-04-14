@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.weex.commons.AbstractWeexActivity;
+import com.alibaba.weex.syncRender.SyncRenderManager;
+import com.alibaba.weex.syncRender.SyncRenderObject;
 import com.google.zxing.client.android.CaptureActivity;
 import com.taobao.weex.WXRenderErrorCode;
 import com.taobao.weex.WXSDKEngine;
@@ -40,21 +43,25 @@ public class IndexActivity extends AbstractWeexActivity {
   private TextView mTipView;
 
   private BroadcastReceiver mReloadReceiver;
+  private SyncRenderObject syncRenderObject;
 
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_index);
-    setContainer((ViewGroup) findViewById(R.id.index_container));
+    ViewGroup viewGroup = (ViewGroup) findViewById(R.id.index_container);
+    setContainer(viewGroup);
+    viewGroup.removeAllViews();
+    viewGroup.addView(syncRenderObject.getContainer());
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     getWindow().setFormat(PixelFormat.TRANSLUCENT);
 
     mProgressBar = (ProgressBar) findViewById(R.id.index_progressBar);
     mTipView = (TextView) findViewById(R.id.index_tip);
-    mProgressBar.setVisibility(View.VISIBLE);
-    mTipView.setVisibility(View.VISIBLE);
+    mProgressBar.setVisibility(View.GONE);
+    mTipView.setVisibility(View.GONE);
 
 
     if (!WXSoInstallMgrSdk.isCPUSupport()) {
@@ -63,27 +70,37 @@ public class IndexActivity extends AbstractWeexActivity {
       return;
     }
 
-    if (TextUtils.equals(sCurrentIp, DEFAULT_IP)) {
-      renderPage(WXFileUtils.loadAsset("index.js", this), getIndexUrl());
-    } else {
-      renderPageByURL(getIndexUrl());
-    }
-
-
-    mReloadReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        createWeexInstance();
-        if (TextUtils.equals(sCurrentIp, DEFAULT_IP)) {
-          renderPage(WXFileUtils.loadAsset("index.js", getApplicationContext()), getIndexUrl());
-        } else {
-          renderPageByURL(getIndexUrl());
-        }
-        mProgressBar.setVisibility(View.VISIBLE);
-      }
-    };
+//    if (TextUtils.equals(sCurrentIp, DEFAULT_IP)) {
+//      renderPage(WXFileUtils.loadAsset("index.js", this), getIndexUrl());
+//    } else {
+//      renderPageByURL(getIndexUrl());
+//    }
+//
+//
+//    mReloadReceiver = new BroadcastReceiver() {
+//      @Override
+//      public void onReceive(Context context, Intent intent) {
+//        createWeexInstance();
+//        if (TextUtils.equals(sCurrentIp, DEFAULT_IP)) {
+//          renderPage(WXFileUtils.loadAsset("index.js", getApplicationContext()), getIndexUrl());
+//        } else {
+//          renderPageByURL(getIndexUrl());
+//        }
+//        mProgressBar.setVisibility(View.VISIBLE);
+//      }
+//    };
 
     LocalBroadcastManager.getInstance(this).registerReceiver(mReloadReceiver, new IntentFilter(WXSDKEngine.JS_FRAMEWORK_RELOAD));
+  }
+
+  @Override
+  protected void createWeexInstance() {
+    destoryWeexInstance();
+
+    Rect outRect = new Rect();
+    getWindow().getDecorView().getWindowVisibleDisplayFrame(outRect);
+    syncRenderObject = SyncRenderManager.createInstance(this);
+    mInstance = syncRenderObject.getInstance();
   }
 
   @Override

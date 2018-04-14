@@ -290,6 +290,14 @@ public class WXRenderManager {
     }));
   }
 
+  public void syncRunOnThread(final String instanceId, final IWXRenderTask task) {
+    if (mRegistries.get(instanceId) == null) {
+      return;
+    }
+    task.execute();
+  }
+
+
   public void registerInstance(WXSDKInstance instance) {
     mRegistries.put(instance.getInstanceId(), new WXRenderStatement(instance));
   }
